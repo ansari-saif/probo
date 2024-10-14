@@ -13,10 +13,7 @@ export const createSymbol = (req: Request, res: Response) => {
 
     // Initialize the symbol with default values
     ORDERBOOK[stockSymbol] = {
-        yes: {
-            "9.5": { total: 12, orders: { "user1": 2, "user2": 10 } },
-            "8.5": { total: 12, orders: { "user1": 3, "user2": 3, "user3": 6 } }
-        },
+        yes: {},
         no: {}
     };
 
