@@ -76,3 +76,22 @@ export const onrampINR = (req: Request, res: Response) => {
         balance: INR_BALANCES[userId].balance
     });
 };
+
+// Get stock balance for a specific user
+export const getStockBalanceByUserId = (req: Request, res: Response) => {
+    const { userId } = req.params;
+
+    // Check if the user exists in STOCK_BALANCES
+    if (!STOCK_BALANCES[userId]) {
+        return res.status(404).json({
+            success: false,
+            message: `No stock balance found for user ID ${userId}.`
+        });
+    }
+
+    // Return the user's stock balance
+    res.status(200).json({
+        success: true,
+        data: STOCK_BALANCES[userId]
+    });
+};
