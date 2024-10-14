@@ -11,17 +11,14 @@ export const getOrderBook = (req: Request, res: Response) => {
     }
 };
 
-export const buyYesStock = (req: Request, res: Response) => {
-    const { userId, stockSymbol, quantity, price } = req.body;
-
-    // Validate input
-    if (!userId || !stockSymbol || quantity <= 0 || price <= 0) {
-        return res.status(400).json({
-            success: false,
-            message: 'Invalid input. Please provide valid userId, stockSymbol, quantity, and price.'
-        });
-    }
-
+// Utility function to place an order
+const placeOrder = (
+    userId: string,
+    stockSymbol: string,
+    quantity: number,
+    price: number,
+    option: 'yes' | 'no'
+): string | null => {
     // Create or update the order in the ORDERBOOK
     if (!ORDERBOOK[stockSymbol]) {
         ORDERBOOK[stockSymbol] = {
@@ -29,8 +26,6 @@ export const buyYesStock = (req: Request, res: Response) => {
             no: {}
         };
     }
-
-    const option = 'yes'; // We are only handling 'yes' orders in this example
 
     // Check if the price level exists
     if (!ORDERBOOK[stockSymbol][option][price]) {
@@ -49,10 +44,26 @@ export const buyYesStock = (req: Request, res: Response) => {
 
     ORDERBOOK[stockSymbol][option][price].orders[userId] += quantity;
 
-    // Respond with success
+    return null; // Indicate success
+};
+
+// Place buy order for "yes" options
+export const buyYesStock = (req: Request, res: Response) => {
+    const { userId, stockSymbol, quantity, price } = req.body;
+
+    // Validate input
+    if (!userId || !stockSymbol || quantity <= 0 || price <= 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid input. Please provide valid userId, stockSymbol, quantity, and price.'
+        });
+    }
+
+    placeOrder(userId, stockSymbol, quantity, price, 'yes');
+
     res.status(201).json({
         success: true,
-        message: 'Order placed successfully.',
+        message: 'Buy order for "yes" placed successfully.',
         order: {
             stockSymbol,
             price,
@@ -60,3 +71,80 @@ export const buyYesStock = (req: Request, res: Response) => {
         }
     });
 };
+
+// Place sell order for "yes" options
+export const sellYesStock = (req: Request, res: Response) => {
+    const { userId, stockSymbol, quantity, price } = req.body;
+
+    // Validate input
+    if (!userId || !stockSymbol || quantity <= 0 || price <= 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid input. Please provide valid userId, stockSymbol, quantity, and price.'
+        });
+    }
+
+    placeOrder(userId, stockSymbol, quantity, price, 'yes');
+
+    res.status(201).json({
+        success: true,
+        message: 'Sell order for "yes" placed successfully.',
+        order: {
+            stockSymbol,
+            price,
+            quantity
+        }
+    });
+};
+
+// Place buy order for "no" options
+export const buyNoStock = (req: Request, res: Response) => {
+    const { userId, stockSymbol, quantity, price } = req.body;
+
+    // Validate input
+    if (!userId || !stockSymbol || quantity <= 0 || price <= 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid input. Please provide valid userId, stockSymbol, quantity, and price.'
+        });
+    }
+
+    placeOrder(userId, stockSymbol, quantity, price, 'no');
+
+    res.status(201).json({
+        success: true,
+        message: 'Buy order for "no" placed successfully.',
+        order: {
+            stockSymbol,
+            price,
+            quantity
+        }
+    });
+};
+
+// Place sell order for "no" options
+export const sellNoStock = (req: Request, res: Response) => {
+    const { userId, stockSymbol, quantity, price } = req.body;
+
+    // Validate input
+    if (!userId || !stockSymbol || quantity <= 0 || price <= 0) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid input. Please provide valid userId, stockSymbol, quantity, and price.'
+        });
+    }
+
+    placeOrder(userId, stockSymbol, quantity, price, 'no');
+
+    res.status(201).json({
+        success: true,
+        message: 'Sell order for "no" placed successfully.',
+        order: {
+            stockSymbol,
+            price,
+            quantity
+        }
+    });
+};
+
+
