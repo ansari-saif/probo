@@ -1,0 +1,54 @@
+*.py
+# Node modules
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+
+# Temporary files
+tmp/
+temp/
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# IDE specific files
+.vscode/
+.idea/
+
+# MacOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+
+# Yarn
+yarn-error.log
+.yarn-integrity
+.pnp.*
+
+# Next.js
+.next/
+
+# Expo
+.expo/
+
+# SvelteKit
+.svelte-kit/
+
+# Other
+*.tgz
+*.swp
+*.swo
