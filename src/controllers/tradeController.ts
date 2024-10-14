@@ -10,7 +10,7 @@ const hasSufficientBalance = (userId: string, quantity: number): boolean => {
 
 // Mint fresh tokens
 export const mintTokens = (req: Request, res: Response) => {
-    const { userId, stockSymbol, quantity } = req.body;
+    const { userId, stockSymbol, quantity, price } = req.body;
 
     // Validate input
     if (!userId || !stockSymbol || quantity <= 0) {
@@ -28,8 +28,6 @@ export const mintTokens = (req: Request, res: Response) => {
         });
     }
 
-    // Update the balance
-    INR_BALANCES[userId].balance -= quantity;
 
     // Update the ORDERBOOK with the new minted tokens
     if (!ORDERBOOK[stockSymbol]) {
@@ -40,7 +38,6 @@ export const mintTokens = (req: Request, res: Response) => {
     }
 
     // Mint the tokens by updating the ORDERBOOK
-    const price = 1; // Assume a default price for minting
     if (!ORDERBOOK[stockSymbol]['yes'][price]) {
         ORDERBOOK[stockSymbol]['yes'][price] = {
             total: 0,
@@ -56,9 +53,26 @@ export const mintTokens = (req: Request, res: Response) => {
 
     ORDERBOOK[stockSymbol]['yes'][price].orders[userId] += quantity;
 
+
+    if (!ORDERBOOK[stockSymbol]['no'][price]) {
+        ORDERBOOK[stockSymbol]['no'][price] = {
+            total: 0,
+            orders: {}
+        };
+    }
+
+    ORDERBOOK[stockSymbol]['no'][price].total += quantity;
+
+    if (!ORDERBOOK[stockSymbol]['no'][price].orders[userId]) {
+        ORDERBOOK[stockSymbol]['no'][price].orders[userId] = 0;
+    }
+
+    ORDERBOOK[stockSymbol]['no'][price].orders[userId] += quantity;
+    const balance = INR_BALANCES[userId].balance - quantity*price*2
+
     res.status(200).json({
         success: true,
-        message: 'Minted tokens successfully.',
+        message: `Minted ${quantity} 'yes' and 'no' tokens for user ${userId}, remaining balance is ${balance}`,
         minted: {
             stockSymbol,
             quantity

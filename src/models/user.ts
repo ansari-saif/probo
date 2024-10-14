@@ -8,17 +8,13 @@ interface UserAction {
 }
 
 interface UserPosition {
-    yes?: UserAction; // Optional, as not all users may have "yes" actions
-    no?: UserAction;  // Optional, as not all users may have "no" actions
-}
-
-interface UserData {
-    [key: string]: UserPosition; // Dynamically keyed by user actions
+    yes?: UserAction;
+    no?: UserAction; 
 }
 
 export interface StockBalances {
     [user: string]: {
-        [position: string]: UserPosition; // Dynamically keyed by trading positions
+        [position: string]: UserPosition;
     };
 }
 
