@@ -1,0 +1,23 @@
+   curl -X POST http://localhost:3000/reset
+   curl -X POST http://localhost:3000/onramp/inr -H "Content-Type: application/json" -d '{"userId": "user5", "amount": 50000}'
+   curl -X POST http://localhost:3000/symbol/create/AAPL_USD_25_Oct_2024_14_00
+   curl -X POST http://localhost:3000/trade/mint -H "Content-Type: application/json" -d '{"userId": "user5", "stockSymbol": "AAPL_USD_25_Oct_2024_14_00", "quantity": 25, "price": 1000}'
+   curl -X POST http://localhost:3000/order/sell -H "Content-Type: application/json" -d '{"userId": "user5", "stockSymbol": "AAPL_USD_25_Oct_2024_14_00", "quantity": 10, "price": 1000, "stockType": "no"}'
+   curl -X POST http://localhost:3000/user/create/user6
+   curl -X POST http://localhost:3000/onramp/inr -H "Content-Type: application/json" -d '{"userId": "user6", "amount": 20000}'
+   curl -X POST http://localhost:3000/order/buy -H "Content-Type: application/json" -d '{"userId": "user6", "stockSymbol": "AAPL_USD_25_Oct_2024_14_00", "quantity": 10, "price": 1000, "stockType": "no"}'
+    curl -X GET http://localhost:3000/balances/inr
+   curl -X POST http://localhost:3000/reset
+   curl -X POST http://localhost:3000/user/create/user3
+   curl -X POST http://localhost:3000/onramp/inr -H "Content-Type: application/json" -d '{"userId": "user3", "amount": 100000}'
+   curl -X GET http://localhost:3000/balances/inr
+   curl -X POST http://localhost:3000/symbol/create/ETH_USD_20_Oct_2024_10_00
+   curl -X POST http://localhost:3000/trade/mint -H "Content-Type: application/json" -d '{"userId": "user3", "stockSymbol": "ETH_USD_20_Oct_2024_10_00", "quantity": 50, "price": 2000}'
+   curl -X GET http://localhost:3000/balances/stock
+   curl -X POST http://localhost:3000/order/sell -H "Content-Type: application/json" -d '{"userId": "user3", "stockSymbol": "ETH_USD_20_Oct_2024_10_00", "quantity": 20, "price": 2000, "stockType": "yes"}'
+   curl -X GET http://localhost:3000/balances/stock
+    curl -X POST http://localhost:3000/user/create/user4
+    curl -X POST http://localhost:3000/onramp/inr -H "Content-Type: application/json" -d '{"userId": "user4", "amount": 60000}'
+    curl -X POST http://localhost:3000/order/buy -H "Content-Type: application/json" -d '{"userId": "user4", "stockSymbol": "ETH_USD_20_Oct_2024_10_00", "quantity": 20, "price": 2000, "stockType": "yes"}'
+    curl -X GET http://localhost:3000/balances/inr
+    curl -X GET http://localhost:3000/balances/stock

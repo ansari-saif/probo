@@ -72,9 +72,10 @@ export const onrampINR = (req: Request, res: Response) => {
 
     res.status(200).json({
         success: true,
-        message: 'INR successfully onramped.',
+        message: `Onramped ${userId} with amount ${amount}`,
         balance: INR_BALANCES[userId].balance
     });
+    
 };
 
 // Get stock balance for a specific user

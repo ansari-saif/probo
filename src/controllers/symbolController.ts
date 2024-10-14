@@ -17,5 +17,5 @@ export const createSymbol = (req: Request, res: Response) => {
         no: {}
     };
 
-    res.status(201).json({ message: 'Symbol created successfully', symbol: ORDERBOOK[stockSymbol] });
+    res.status(201).json({ message: `Symbol ${stockSymbol} created`, symbol: ORDERBOOK[stockSymbol] });
 };

@@ -14,7 +14,7 @@ export const createUser = (req: Request, res: Response) => {
         locked: 0,
     };
     INR_BALANCES[userId] = user;
-    res.status(201).json({ userId, ...user });
+    res.status(201).json({ message: `User ${userId} created` });
 };
 
 export const getUsers = (req: Request, res: Response) => {

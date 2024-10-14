@@ -56,7 +56,7 @@ export const mintTokens = (req: Request, res: Response) => {
 
     ORDERBOOK[stockSymbol]['yes'][price].orders[userId] += quantity;
 
-    res.status(201).json({
+    res.status(200).json({
         success: true,
         message: 'Minted tokens successfully.',
         minted: {
