@@ -1,7 +1,7 @@
 // src/controllers/orderbookController.ts
 
 import { Request, Response } from 'express';
-import { ORDERBOOK } from '../models/symbol';
+import { ORDERBOOK } from '../db';
 
 export const getOrderBook = (req: Request, res: Response) => {
     try {

@@ -1,7 +1,6 @@
 
 import { Request, Response } from 'express';
-import { ORDERBOOK } from '../models/symbol';
-import { INR_BALANCES } from '../models/user';
+import { INR_BALANCES, ORDERBOOK } from '../db';
 
 
 const hasSufficientBalance = (userId: string, quantity: number): boolean => {

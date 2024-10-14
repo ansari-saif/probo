@@ -1,4 +1,5 @@
-import { INR_BALANCES, User } from "../models/user";
+import { INR_BALANCES } from "../db";
+import {  User } from "../models/user";
 import { Request, Response } from "express";
 export const createUser = (req: Request, res: Response) => {
     let userId : string= req.params.userId;

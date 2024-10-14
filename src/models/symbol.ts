@@ -14,4 +14,3 @@ export interface OrderBook {
     [key: string]: SymbolEntry;
 }
 
-export const ORDERBOOK: OrderBook = {};

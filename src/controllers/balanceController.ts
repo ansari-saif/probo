@@ -1,6 +1,6 @@
 // src/controllers/balanceController.ts
 import { Request, Response } from 'express';
-import { INR_BALANCES, STOCK_BALANCES } from '../models/user';
+import { INR_BALANCES, STOCK_BALANCES } from '../db';
 
 
 export const getINRBalances = (req: Request, res: Response): void => {

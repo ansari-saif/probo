@@ -16,11 +16,9 @@ interface UserData {
     [key: string]: UserPosition; // Dynamically keyed by user actions
 }
 
-interface StockBalances {
+export interface StockBalances {
     [user: string]: {
         [position: string]: UserPosition; // Dynamically keyed by trading positions
     };
 }
 
-export const INR_BALANCES: Record<string, User> = {};
-export const STOCK_BALANCES: StockBalances = {};

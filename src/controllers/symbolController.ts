@@ -1,7 +1,7 @@
 // src/controllers/symbolController.ts
 
 import { Request, Response } from 'express';
-import { ORDERBOOK } from '../models/symbol';
+import { ORDERBOOK } from '../db';
 
 export const createSymbol = (req: Request, res: Response) => {
     const { stockSymbol } = req.params;
