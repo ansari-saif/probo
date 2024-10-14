@@ -1,6 +1,5 @@
-import { User } from "../models/user";
+import { INR_BALANCES, User } from "../models/user";
 import { Request, Response } from "express";
-const INR_BALANCES: Record<string, User> = {};
 export const createUser = (req: Request, res: Response) => {
     let userId : string= req.params.userId;
     if (!userId){

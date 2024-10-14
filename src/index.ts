@@ -5,6 +5,7 @@ import taskRoutes from './routes/taskRoutes';
 import userRoutes from './routes/userRoutes';
 import symbolRoutes from './routes/symbolRoutes';
 import orderbookRoutes from './routes/orderbookRoutes';
+import balanceRoutes from './routes/balanceRoutes';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -12,6 +13,7 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
+app.use('/balances', balanceRoutes);
 app.use('/user', userRoutes);
 app.use('/symbol', symbolRoutes);
 app.use('/orderbook', orderbookRoutes);
