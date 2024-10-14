@@ -8,6 +8,7 @@ import balanceRoutes from './routes/balanceRoutes';
 import tradeRoutes from './routes/tradeRoutes';
 import resetRouter from './routes/resetRouter';
 import onrampRouter from './routes/onrampRouter';
+import orderRoutes from './routes/orderRoutes';
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -19,6 +20,7 @@ app.use('/balances', balanceRoutes);
 app.use('/user', userRoutes);
 app.use('/symbol', symbolRoutes);
 app.use('/orderbook', orderbookRoutes);
+app.use('/order', orderRoutes);
 app.use('/trade', tradeRoutes);
 app.use('/reset', resetRouter);
 app.use('/onramp', onrampRouter);
