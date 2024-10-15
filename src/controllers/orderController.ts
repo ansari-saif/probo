@@ -2,16 +2,25 @@ import { Request, Response } from 'express';
 import { CLOSURE_AMOUNT, INR_BALANCES, ORDERBOOK, STOCK_BALANCES } from '../db';
 const getStockType = (val: string) => val == "yes" ? "no" : "yes";
 const getPrice = (val: number) => CLOSURE_AMOUNT - val
+
 export const placeBuyOrder = (req: Request, res: Response) => {
-    const { stockSymbol, stockType, price, quantity, userId }: {
+    const {
+        stockSymbol,
+        stockType,
+        price,
+        quantity,
+        userId
+    }: {
         stockSymbol: string;
         stockType: 'yes' | 'no';
         price: number;
         quantity: number;
-        userId: string
+        userId: string;
     } = req.body;
+
     const updatedStockType = getStockType(stockType);
     const updatedPrice = getPrice(price);
+
     // Check if user exists in INR_BALANCES
     if (!INR_BALANCES[userId]) {
         return res.status(404).json({ success: false, message: 'User not found.' });
@@ -26,25 +35,39 @@ export const placeBuyOrder = (req: Request, res: Response) => {
 
     // Deduct the amount from INR_BALANCES
     INR_BALANCES[userId].balance -= totalCost;
-    // INR_BALANCES[userId].locked += totalCost;
 
     // Update the STOCK_BALANCES ledger
     STOCK_BALANCES[userId] ??= {};
     STOCK_BALANCES[userId][stockSymbol] ??= {};
     STOCK_BALANCES[userId][stockSymbol][stockType] ??= { quantity: 0, locked: 0 };
 
+    // Increase the quantity in the user's stock balance
     STOCK_BALANCES[userId][stockSymbol][stockType].quantity += quantity;
 
     // Initialize the order book if necessary
     ORDERBOOK[stockSymbol] ??= { yes: {}, no: {} };
-    ORDERBOOK[stockSymbol][updatedStockType][updatedPrice] ??= { total: 0, orders: {} };
+    
+    // Check if an order exists at the same or lower price
+    let existingOrder = false;
+    for (const [orderPrice, orderDetails] of Object.entries(ORDERBOOK[stockSymbol][stockType])) {
+        if (parseFloat(orderPrice) <= updatedPrice) {
+            existingOrder = true;
+            break;
+        }
+    }
 
-    // Add to the order book
-    const orderEntry = ORDERBOOK[stockSymbol][updatedStockType][updatedPrice];
-    orderEntry.total += quantity;
-    orderEntry.orders[userId] = (orderEntry.orders[userId] || 0) + quantity;
+    if (existingOrder){
+        // TODO : write code here to removing that entry 
+    }else {
+        ORDERBOOK[stockSymbol][updatedStockType][updatedPrice] ??= { total: 0, orders: {} };
 
-    res.json({
+        // Add to the order book
+        const orderEntry = ORDERBOOK[stockSymbol][updatedStockType][updatedPrice];
+        orderEntry.total += quantity;
+        orderEntry.orders[userId] = (orderEntry.orders[userId] || 0) + quantity;
+
+    } 
+    return res.json({
         success: true,
         message: `Buy order placed for ${quantity} '${stockType}' options at price ${price}.`,
         order: { stockSymbol, stockType, price, quantity },
