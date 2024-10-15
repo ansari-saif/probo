@@ -19,10 +19,8 @@ export const getINRBalanceByUserId = (req: Request, res: Response): void => {
 
     // Check if the user exists in INR_BALANCES
     if (INR_BALANCES[userId]) {
-        res.status(200).json({
-            success: true,
-            data: INR_BALANCES[userId]
-        });
+        res.status(200).json(INR_BALANCES[userId]
+        );
     } else {
         res.status(404).json({
             success: false,
@@ -33,10 +31,8 @@ export const getINRBalanceByUserId = (req: Request, res: Response): void => {
 
 export const getStockBalances = (req: Request, res: Response): void => {
     try {
-        res.status(200).json({
-            success: true,
-            data: STOCK_BALANCES
-        });
+        res.status(200).json( STOCK_BALANCES
+        );
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -88,8 +84,6 @@ export const getStockBalanceByUserId = (req: Request, res: Response) => {
     }
 
     // Return the user's stock balance
-    res.status(200).json({
-        success: true,
-        data: STOCK_BALANCES[userId]
-    });
+    res.status(200).json( STOCK_BALANCES[userId]
+    );
 };
