@@ -40,7 +40,7 @@ export const placeBuyOrder = (req: Request, res: Response) => {
     STOCK_BALANCES[userId] ??= {};
     STOCK_BALANCES[userId][stockSymbol] ??= {};
     STOCK_BALANCES[userId][stockSymbol][stockType] ??= { quantity: 0, locked: 0 };
-
+    
     // Increase the quantity in the user's stock balance
     STOCK_BALANCES[userId][stockSymbol][stockType].quantity += quantity;
 
@@ -50,23 +50,21 @@ export const placeBuyOrder = (req: Request, res: Response) => {
     // Check if an order exists at the same or lower price
     let existingOrder = false;
     for (const [orderPrice, orderDetails] of Object.entries(ORDERBOOK[stockSymbol][stockType])) {
-        if (parseFloat(orderPrice) <= updatedPrice) {
+        if (parseFloat(orderPrice) <= price) {
             existingOrder = true;
             break;
         }
     }
 
-    if (existingOrder){
-        // TODO : write code here to removing that entry 
-    }else {
+    if (!existingOrder) {
         ORDERBOOK[stockSymbol][updatedStockType][updatedPrice] ??= { total: 0, orders: {} };
 
         // Add to the order book
         const orderEntry = ORDERBOOK[stockSymbol][updatedStockType][updatedPrice];
         orderEntry.total += quantity;
         orderEntry.orders[userId] = (orderEntry.orders[userId] || 0) + quantity;
+    }
 
-    } 
     return res.json({
         success: true,
         message: `Buy order placed for ${quantity} '${stockType}' options at price ${price}.`,
@@ -77,13 +75,14 @@ export const placeBuyOrder = (req: Request, res: Response) => {
 };
 
 
+
 export const placeSellOrder = (req: Request, res: Response) => {
     const { stockSymbol, stockType, price, quantity, userId }: {
         stockSymbol: string;
         stockType: 'yes' | 'no';
         price: number;
         quantity: number;
-        userId: string
+        userId: string;
     } = req.body;
 
     // Check if user exists in INR_BALANCES
@@ -146,20 +145,11 @@ export const placeSellOrder = (req: Request, res: Response) => {
 
         // Add order to ORDERBOOK
         if (!ORDERBOOK[stockSymbol]) {
-            // Initialize both 'yes' and 'no' to ensure the structure matches the SymbolEntry interface
-            ORDERBOOK[stockSymbol] = {
-                yes: {}, // Initialize the 'yes' property
-                no: {}   // Initialize the 'no' property
-            };
-        }
-        
-        if (!ORDERBOOK[stockSymbol][stockType][price]) {
-            ORDERBOOK[stockSymbol][stockType][price] = {
-                total: 0,
-                orders: {}
-            };
+            ORDERBOOK[stockSymbol] = { yes: {}, no: {} };
         }
 
+        ORDERBOOK[stockSymbol][stockType][price] ??= { total: 0, orders: {} };
+        
         ORDERBOOK[stockSymbol][stockType][price].total += quantity;
         ORDERBOOK[stockSymbol][stockType][price].orders[userId] = (ORDERBOOK[stockSymbol][stockType][price].orders[userId] || 0) + quantity;
     }
@@ -173,3 +163,4 @@ export const placeSellOrder = (req: Request, res: Response) => {
         remainingStockBalance: userStockBalance
     });
 };
+
