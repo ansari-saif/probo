@@ -40,23 +40,52 @@ export const placeBuyOrder = (req: Request, res: Response) => {
     STOCK_BALANCES[userId] ??= {};
     STOCK_BALANCES[userId][stockSymbol] ??= {};
     STOCK_BALANCES[userId][stockSymbol][stockType] ??= { quantity: 0, locked: 0 };
-    
+
     // Increase the quantity in the user's stock balance
     STOCK_BALANCES[userId][stockSymbol][stockType].quantity += quantity;
 
     // Initialize the order book if necessary
     ORDERBOOK[stockSymbol] ??= { yes: {}, no: {} };
-    
+
     // Check if an order exists at the same or lower price
-    let existingOrder = false;
+    let orderMatched = false;
     for (const [orderPrice, orderDetails] of Object.entries(ORDERBOOK[stockSymbol][stockType])) {
         if (parseFloat(orderPrice) <= price) {
-            existingOrder = true;
+            orderMatched = true;
+
+            // Handle fulfilling the order for 1 quantity
+            const availableQty = Math.min(orderDetails.total, 1); // We only buy 1 qty
+
+            // Loop through the users in this price level
+            for (const [existingUserId, userOrderQty] of Object.entries(orderDetails.orders)) {
+                const quantityToDeduct = Math.min(userOrderQty as number, availableQty);
+
+                // Deduct from the order
+                orderDetails.orders[existingUserId] -= quantityToDeduct;
+                orderDetails.total -= quantityToDeduct;
+
+                // If the order is completely fulfilled for a user, remove the user from the order
+                if (orderDetails.orders[existingUserId] === 0) {
+                    delete orderDetails.orders[existingUserId];
+                }
+
+                // Break after fulfilling the 1 qty
+                if (quantityToDeduct === availableQty) {
+                    break;
+                }
+            }
+
+            // If the total order at this price is completely filled, remove it from the order book
+            if (orderDetails.total === 0) {
+                delete ORDERBOOK[stockSymbol][stockType][orderPrice];
+            }
+
             break;
         }
     }
 
-    if (!existingOrder) {
+    // If no matching order was found, add the order to the order book
+    if (!orderMatched) {
         ORDERBOOK[stockSymbol][updatedStockType][updatedPrice] ??= { total: 0, orders: {} };
 
         // Add to the order book
@@ -73,6 +102,7 @@ export const placeBuyOrder = (req: Request, res: Response) => {
         updatedStockBalance: STOCK_BALANCES[userId][stockSymbol][updatedStockType]
     });
 };
+
 
 
 
