@@ -1,15 +1,17 @@
 import { Request, Response } from 'express';
-import { INR_BALANCES, ORDERBOOK, STOCK_BALANCES } from '../db';
-
+import { CLOSURE_AMOUNT, INR_BALANCES, ORDERBOOK, STOCK_BALANCES } from '../db';
+const getStockType = (val: string) => val == "yes" ? "no" : "yes";
+const getPrice = (val: number) => CLOSURE_AMOUNT - val
 export const placeBuyOrder = (req: Request, res: Response) => {
-    const { stockSymbol, stockType, price, quantity, userId }: { 
-        stockSymbol: string; 
-        stockType: 'yes' | 'no'; 
-        price: number; 
-        quantity: number; 
-        userId: string 
+    const { stockSymbol, stockType, price, quantity, userId }: {
+        stockSymbol: string;
+        stockType: 'yes' | 'no';
+        price: number;
+        quantity: number;
+        userId: string
     } = req.body;
-
+    const updatedStockType = getStockType(stockType);
+    const updatedPrice = getPrice(price);
     // Check if user exists in INR_BALANCES
     if (!INR_BALANCES[userId]) {
         return res.status(404).json({ success: false, message: 'User not found.' });
@@ -35,30 +37,30 @@ export const placeBuyOrder = (req: Request, res: Response) => {
 
     // Initialize the order book if necessary
     ORDERBOOK[stockSymbol] ??= { yes: {}, no: {} };
-    ORDERBOOK[stockSymbol][stockType][price] ??= { total: 0, orders: {} };
+    ORDERBOOK[stockSymbol][updatedStockType][updatedPrice] ??= { total: 0, orders: {} };
 
     // Add to the order book
-    const orderEntry = ORDERBOOK[stockSymbol][stockType][price];
+    const orderEntry = ORDERBOOK[stockSymbol][updatedStockType][updatedPrice];
     orderEntry.total += quantity;
     orderEntry.orders[userId] = (orderEntry.orders[userId] || 0) + quantity;
 
-    res.json({ 
-        success: true, 
-        message: `Buy order placed for ${quantity} '${stockType}' options at price ${price}.`, 
+    res.json({
+        success: true,
+        message: `Buy order placed for ${quantity} '${updatedStockType}' options at price ${price}.`,
         order: { stockSymbol, stockType, price, quantity },
         remainingBalance: INR_BALANCES[userId],
-        updatedStockBalance: STOCK_BALANCES[userId][stockSymbol][stockType] 
+        updatedStockBalance: STOCK_BALANCES[userId][stockSymbol][updatedStockType]
     });
 };
 
 
 export const placeSellOrder = (req: Request, res: Response) => {
     const { stockSymbol, stockType, price, quantity, userId }: {
-        stockSymbol: string; 
-        stockType: 'yes' | 'no'; 
-        price: number; 
-        quantity: number; 
-        userId: string 
+        stockSymbol: string;
+        stockType: 'yes' | 'no';
+        price: number;
+        quantity: number;
+        userId: string
     } = req.body;
 
     // Check if user exists in INR_BALANCES
@@ -77,29 +79,16 @@ export const placeSellOrder = (req: Request, res: Response) => {
     // Deduct the stock options from the user's holdings
     userStockBalance.quantity -= quantity;
 
-    // // If there is a lock mechanism on stock options, update the locked field accordingly (if applicable)
-    // if (userStockBalance.locked >= quantity) {
-    //     userStockBalance.locked -= quantity;
-    // }
 
-    // Add the proceeds from the sale to the user's INR balance
-    INR_BALANCES[userId].balance += totalSellValue;
+    // TODO : check if entry exists on ORDERBOOK on same or higher and place order if not exits then lock it in STOCK_BALANCES
 
-    // Initialize the order book if necessary
-    ORDERBOOK[stockSymbol] ??= { yes: {}, no: {} };
-    ORDERBOOK[stockSymbol][stockType][price] ??= { total: 0, orders: {} };
-
-    // Add to the order book
-    const orderEntry = ORDERBOOK[stockSymbol][stockType][price];
-    orderEntry.total += quantity;
-    orderEntry.orders[userId] = (orderEntry.orders[userId] || 0) + quantity;
 
     // Send success response
-    res.json({ 
-        success: true, 
-        message: `Sell order placed for ${quantity} '${stockType}' options at price ${price}.`, 
+    res.json({
+        success: true,
+        message: `Sell order placed for ${quantity} '${stockType}' options at price ${price}.`,
         order: { stockSymbol, stockType, price, quantity },
         updatedINRBalance: INR_BALANCES[userId].balance,
-        remainingStockBalance: userStockBalance 
+        remainingStockBalance: userStockBalance
     });
 };
