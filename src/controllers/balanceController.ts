@@ -5,10 +5,7 @@ import { INR_BALANCES, STOCK_BALANCES } from '../db';
 
 export const getINRBalances = (req: Request, res: Response): void => {
     try {
-        res.status(200).json({
-            success: true,
-            data: INR_BALANCES
-        });
+        res.status(200).json(INR_BALANCES);
     } catch (error) {
         res.status(500).json({
             success: false,
