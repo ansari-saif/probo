@@ -34,7 +34,6 @@ export const placeBuyOrder = (req: Request, res: Response) => {
     }
 
     // Deduct the amount from INR_BALANCES
-    INR_BALANCES[userId].balance -= totalCost;
 
     // Update the STOCK_BALANCES ledger
     STOCK_BALANCES[userId] ??= {};
@@ -63,6 +62,7 @@ export const placeBuyOrder = (req: Request, res: Response) => {
                 // Deduct from the order
                 orderDetails.orders[existingUserId] -= quantityToDeduct;
                 orderDetails.total -= quantityToDeduct;
+                INR_BALANCES[userId].balance -= Number(orderPrice)*quantityToDeduct;
 
                 // If the order is completely fulfilled for a user, remove the user from the order
                 if (orderDetails.orders[existingUserId] === 0) {
@@ -86,6 +86,7 @@ export const placeBuyOrder = (req: Request, res: Response) => {
 
     // If no matching order was found, add the order to the order book
     if (!orderMatched) {
+        INR_BALANCES[userId].balance -= totalCost;
         ORDERBOOK[stockSymbol][updatedStockType][updatedPrice] ??= { total: 0, orders: {} };
 
         // Add to the order book
