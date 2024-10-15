@@ -46,7 +46,7 @@ export const placeBuyOrder = (req: Request, res: Response) => {
 
     res.json({
         success: true,
-        message: `Buy order placed for ${quantity} '${updatedStockType}' options at price ${price}.`,
+        message: `Buy order placed for ${quantity} '${stockType}' options at price ${price}.`,
         order: { stockSymbol, stockType, price, quantity },
         remainingBalance: INR_BALANCES[userId],
         updatedStockBalance: STOCK_BALANCES[userId][stockSymbol][updatedStockType]
@@ -79,9 +79,67 @@ export const placeSellOrder = (req: Request, res: Response) => {
     // Deduct the stock options from the user's holdings
     userStockBalance.quantity -= quantity;
 
+    // Check if an entry exists in ORDERBOOK with the same or a higher price
+    const orderBookForSymbol = ORDERBOOK[stockSymbol]?.[stockType] || {};
+    let orderFulfilled = false;
 
-    // TODO : check if entry exists on ORDERBOOK on same or higher and place order if not exits then lock it in STOCK_BALANCES
+    for (const [existingPrice, order] of Object.entries(orderBookForSymbol)) {
+        const existingPriceNumber = parseFloat(existingPrice);
+        
+        // If there is an order at the same or higher price
+        if (existingPriceNumber >= price) {
+            // Fulfill the order by deducting from the orders in the ORDERBOOK
+            let remainingQuantity = quantity;
 
+            for (const [existingUserId, existingUserQuantity] of Object.entries(order.orders)) {
+                const userOrderQuantity = Math.min(existingUserQuantity, remainingQuantity);
+                remainingQuantity -= userOrderQuantity;
+
+                // Update the order in the ORDERBOOK
+                order.orders[existingUserId] -= userOrderQuantity;
+                order.total -= userOrderQuantity;
+
+                // Update INR_BALANCES for the selling user
+                INR_BALANCES[userId].balance += userOrderQuantity * existingPriceNumber;
+
+                // If the order is fully fulfilled
+                if (remainingQuantity === 0) {
+                    orderFulfilled = true;
+                    break;
+                }
+            }
+
+            // If the total order was fulfilled, we can stop checking further
+            if (orderFulfilled) {
+                break;
+            }
+        }
+    }
+
+    // If order not fulfilled, lock the stocks in STOCK_BALANCES and add to ORDERBOOK
+    if (!orderFulfilled) {
+        // Lock the user's stocks
+        userStockBalance.locked = (userStockBalance.locked || 0) + quantity;
+
+        // Add order to ORDERBOOK
+        if (!ORDERBOOK[stockSymbol]) {
+            // Initialize both 'yes' and 'no' to ensure the structure matches the SymbolEntry interface
+            ORDERBOOK[stockSymbol] = {
+                yes: {}, // Initialize the 'yes' property
+                no: {}   // Initialize the 'no' property
+            };
+        }
+        
+        if (!ORDERBOOK[stockSymbol][stockType][price]) {
+            ORDERBOOK[stockSymbol][stockType][price] = {
+                total: 0,
+                orders: {}
+            };
+        }
+
+        ORDERBOOK[stockSymbol][stockType][price].total += quantity;
+        ORDERBOOK[stockSymbol][stockType][price].orders[userId] = (ORDERBOOK[stockSymbol][stockType][price].orders[userId] || 0) + quantity;
+    }
 
     // Send success response
     res.json({
