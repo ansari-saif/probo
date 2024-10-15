@@ -24,7 +24,7 @@ export const placeBuyOrder = (req: Request, res: Response) => {
 
     // Deduct the amount from INR_BALANCES
     INR_BALANCES[userId].balance -= totalCost;
-    INR_BALANCES[userId].locked += totalCost;
+    // INR_BALANCES[userId].locked += totalCost;
 
     // Update the STOCK_BALANCES ledger
     STOCK_BALANCES[userId] ??= {};
@@ -77,10 +77,10 @@ export const placeSellOrder = (req: Request, res: Response) => {
     // Deduct the stock options from the user's holdings
     userStockBalance.quantity -= quantity;
 
-    // If there is a lock mechanism on stock options, update the locked field accordingly (if applicable)
-    if (userStockBalance.locked >= quantity) {
-        userStockBalance.locked -= quantity;
-    }
+    // // If there is a lock mechanism on stock options, update the locked field accordingly (if applicable)
+    // if (userStockBalance.locked >= quantity) {
+    //     userStockBalance.locked -= quantity;
+    // }
 
     // Add the proceeds from the sale to the user's INR balance
     INR_BALANCES[userId].balance += totalSellValue;
